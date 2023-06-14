@@ -8,9 +8,14 @@ public class DialogueManager : MonoBehaviour
 {
     public TMP_Text dialogueText;
     public Button[] responseButtons;
+    public SpriteRenderer backgroundImage;
     private Queue<string> sentences;
     private Dialogue currentDialogue;
     private int currentSentenceIndex;
+
+    public Sprite[] characterSprites;
+
+    public bool responseOpen;
 
     void Awake()
     {
@@ -33,6 +38,14 @@ public class DialogueManager : MonoBehaviour
         DisplayNextSentence();
     }
 
+    public void nextSentenceButton()
+    {
+        if (responseOpen == false)
+        {
+            DisplayNextSentence();
+        }
+    }
+
     public void DisplayNextSentence()
     {
         if (sentences.Count == 0)
@@ -46,7 +59,7 @@ public class DialogueManager : MonoBehaviour
 
         ClearResponseButtons();
 
-        if (currentSentenceIndex < currentDialogue.responses.Length && currentDialogue.responses != null)
+        if (currentSentenceIndex < currentDialogue.responses.Length)
         {
             ShowResponseButtons();
         }
@@ -56,9 +69,17 @@ public class DialogueManager : MonoBehaviour
 
     public void OnResponseSelected(int responseIndex)
     {
+        responseOpen = false;
         if (responseIndex < currentDialogue.responses.Length)
         {
             Dialogue nextDialogue = currentDialogue.responses[responseIndex].nextDialogue;
+            Sprite sprite = currentDialogue.responses[responseIndex].characterSprite;
+
+            if (sprite != null)
+            {
+                backgroundImage.sprite = sprite;
+            }
+
             StartDialogue(nextDialogue);
         }
     }
@@ -66,10 +87,12 @@ public class DialogueManager : MonoBehaviour
     void EndDialogue()
     {
         ClearResponseButtons();
+        // Add any necessary actions or logic for ending the dialogue
     }
 
     void ShowResponseButtons()
     {
+        responseOpen = true;
         for (int i = 0; i < currentDialogue.responses.Length; i++)
         {
             if (i < responseButtons.Length)
